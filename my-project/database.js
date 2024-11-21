@@ -4,7 +4,7 @@ const { Client } = require('pg');
 const dbConfig = {
   user: 'postgres',      // Your PostgreSQL username
   host: 'localhost',         // PostgreSQL server address
-  database: 'test',  // Your PostgreSQL database name
+  database: 'test3',  // Your PostgreSQL database name
   password: 'admin',  // Your PostgreSQL password
   port: 5432,                // PostgreSQL port (default is 5432)
 };

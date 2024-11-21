@@ -15,7 +15,7 @@ class Customer {
   static async viewRoutes() {
     const client = await getClient();
     try {
-      const query = 'SELECT route_id, stops, transporter_id FROM routes';
+      const query = 'SELECT route_id, stops, transporter_id,origin,destination FROM route';
       const result = await client.query(query);
       return result.rows; // Return all rows from the result
     } finally {
@@ -100,80 +100,67 @@ class Customer {
     }
 }
 
-static async bookRide(custId, routeId, source, destination) {
-    const client = await getClient();
-    try {
+static async bookRide(custId, routeId, rideDate) {
+  const client = await getClient();
+  try {
       // Retrieve transporter_id for the selected route
       const routeQuery = `
-        SELECT transporter_id 
-        FROM routes 
-        WHERE route_id = $1
+          SELECT transporter_id 
+          FROM route 
+          WHERE route_id = $1
       `;
       const routeResult = await client.query(routeQuery, [routeId]);
       if (routeResult.rows.length === 0) {
-        throw new Error('Invalid route_id selected.');
+          throw new Error('Invalid route_id selected.');
       }
       const transporterId = routeResult.rows[0].transporter_id;
-  
+
       // Retrieve vehicle_id for the transporter
       const vehicleQuery = `
-        SELECT vehicle_id 
-        FROM vehicles 
-        WHERE transporter_id = $1
+          SELECT vehicle_id 
+          FROM vehicle 
+          WHERE transporter_id = $1
       `;
       const vehicleResult = await client.query(vehicleQuery, [transporterId]);
       if (vehicleResult.rows.length === 0) {
-        throw new Error('No vehicle found for the selected transporter.');
+          throw new Error('No vehicle found for the selected transporter.');
       }
       const vehicleId = vehicleResult.rows[0].vehicle_id;
-  
-      // Generate price using the fare estimation function
-      const price = await this.estimateFare(source, destination);
-  
-      // Retrieve the customer's first name
-      const customerQuery = `
-        SELECT first_name 
-        FROM customers 
-        WHERE cust_id = $1
-      `;
-      const customerResult = await client.query(customerQuery, [custId]);
-      if (customerResult.rows.length === 0) {
-        throw new Error('Invalid customer ID.');
-      }
-      const customerFirstName = customerResult.rows[0].first_name;
-  
-      // Generate a new feedback record and retrieve feedback_id
+
+      // Generate a feedback record and retrieve feedback_id
       const feedbackInsertQuery = `
-        INSERT INTO feedback (comments) VALUES ('No feedback yet') RETURNING feedback_id
+          INSERT INTO feedback (comments) 
+          VALUES ('No feedback yet') 
+          RETURNING feedback_id
       `;
       const feedbackResult = await client.query(feedbackInsertQuery);
       const feedbackId = feedbackResult.rows[0].feedback_id;
-  
-      // Insert booking into the bookings table, now including customers_first_name
+
+      // Insert booking into the bookings table
       const bookingQuery = `
-        INSERT INTO bookings (transporter_id, vehicle_id, price, customers_cust_id, feedback_feedback_id, customers_first_name)
-        VALUES ($1, $2, $3, $4, $5, $6)
-        RETURNING booking_id
+          INSERT INTO bookings (customer_id, vehicle_id, route_id, transporter_id, ride_date, feedback_id)
+          VALUES ($1, $2, $3, $4, $5, $6)
+          RETURNING booking_id
       `;
-      
       const bookingResult = await client.query(bookingQuery, [
-        transporterId,
-        vehicleId,
-        price,
-        custId,
-        feedbackId,
-        customerFirstName,  // Include customers_first_name
+          custId,
+          vehicleId,
+          routeId,
+          transporterId,
+          rideDate,
+          feedbackId,
       ]);
-  
+
       console.log('Booking successful! Booking ID:', bookingResult.rows[0].booking_id);
       return bookingResult.rows[0];
-    } finally {
+  } catch (error) {
+      console.error('Error booking ride:', error.message);
+      throw error;
+  } finally {
       await client.end();
-    }
   }
-  
-  
-  
+}
+ 
   
 }
 class Admin {

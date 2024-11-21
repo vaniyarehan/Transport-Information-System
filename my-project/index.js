@@ -1,11 +1,17 @@
 const { Customer, Admin } = require('./program');
 async function testCustomerClass() {
-    console.log('Testing Booking:');
+  console.log('Testing Book Ride Function:');
     try {
-        const booking = await Customer.bookRide(1, 1, 'Clifton, Karachi', 'Karsaz, Karachi');
-        console.log(booking);
+        // Sample data for testing
+        const customerId = 1;    // Replace with a valid customer ID from your database
+        const routeId = 'RT001';  // Replace with a valid route ID
+        const rideDate = '2024-11-21';  // Date format (YYYY-MM-DD)
+
+        // Call the bookRide function
+        const booking = await Customer.bookRide(customerId, routeId, rideDate);
+        console.log('Booking Details:', booking);  // Log the booking details (e.g., booking ID)
     } catch (err) {
-      console.error('Error during booking test:', err);
+        console.error('Error during booking test:', err.message);
     }
     console.log('Testing Fare Estimation:');
     try {
@@ -18,14 +24,14 @@ async function testCustomerClass() {
     
     }
 
-  // Test View Routes
-//   console.log('Testing View Routes:');
-//   try {
-//     const routes = await Customer.viewRoutes();
-//     console.log('Routes:', routes);
-//   } catch (error) {
-//     console.error('Error during route viewing test:', error);
-//   }
+ // Test View Routes
+  console.log('Testing View Routes:');
+  try {
+    const routes = await Customer.viewRoutes();
+    console.log('Routes:', routes);
+  } catch (error) {
+    console.error('Error during route viewing test:', error);
+  }
   console.log('Testing Real-Time Traffic Updates:');
   try {
     const origin = 'Clifton, Karachi';
