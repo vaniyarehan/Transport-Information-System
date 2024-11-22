@@ -1,4 +1,4 @@
-const bcrypt = require('bcrypt'); // For hashing passwords
+const bcrypt = require('bcrypt');
 const axios = require('axios');
 const { getClient } = require('./database'); // Import the database client function
 
@@ -160,39 +160,223 @@ static async bookRide(custId, routeId, rideDate) {
       await client.end();
   }
 }
+  static async updateCustomerDetails(custId, updates) {
+    const client = await getClient();
+    try {
+      // Map user-friendly field names to database column names
+      const fieldMap = {
+        'First Name': 'first_name',
+        'Last Name': 'last_name',
+        'Email': 'cust_email',
+        'Phone Number': 'phone_number',
+        'Username': 'username',
+        'Password': 'password',
+      };
+
+      const updateKeys = Object.keys(updates).filter(key => fieldMap[key]);
+
+      if (updateKeys.length === 0) {
+        throw new Error('No valid fields to update.');
+      }
+
+      for (const key of updateKeys) {
+        const dbColumn = fieldMap[key];
+
+        if (dbColumn === 'password') {
+          // Encrypt the password
+          const saltRounds = 10;
+          const hashedPassword = await bcrypt.hash(updates[key], saltRounds);
+
+          // Update the password and updated_at explicitly
+          const updatePasswordQuery = `
+            UPDATE customer
+            SET hash_password= $1, updated_at = NOW() 
+            WHERE cust_id = $2
+          `;
+          await client.query(updatePasswordQuery, [hashedPassword, custId]);
+        } else {
+          // Update other fields (e.g., first_name, last_name, etc.)
+          const updateFieldQuery = `
+            UPDATE customer
+            SET ${dbColumn} = $1, updated_at = NOW() 
+            WHERE cust_id = $2
+          `;
+          await client.query(updateFieldQuery, [updates[key], custId]);
+        }
+      }
+
+      // Retrieve and return the updated customer details
+      const selectQuery = `
+        SELECT cust_id, first_name, last_name, cust_email, phone_number, username, updated_at 
+        FROM customer
+        WHERE cust_id = $1
+      `;
+      const result = await client.query(selectQuery, [custId]);
+
+      if (result.rows.length === 0) {
+        throw new Error('Customer not found or no changes made.');
+      }
+
+      console.log('Customer details updated successfully:', result.rows[0]);
+      return result.rows[0];
+    } catch (error) {
+      console.error('Error updating customer details:', error.message);
+      throw error;
+    } finally {
+      await client.end();
+    }
+  }
+  static async deleteCustomer(custId) {
+    const client = await getClient();
+    try {
+      // Start by deleting bookings for the customer
+      const deleteBookingsQuery = `
+        DELETE FROM bookings 
+        WHERE customer_id = $1
+      `;
+      await client.query(deleteBookingsQuery, [custId]);
+
+      // Then, delete the related feedback records
+      const deleteFeedbackQuery = `
+        DELETE FROM feedback 
+        WHERE feedback_id IN (
+          SELECT feedback_id FROM bookings WHERE customer_id = $1
+        )
+      `;
+      await client.query(deleteFeedbackQuery, [custId]);
+
+      // Finally, delete the customer
+      const deleteCustomerQuery = `
+        DELETE FROM customer
+        WHERE cust_id = $1
+      `;
+      await client.query(deleteCustomerQuery, [custId]);
+
+      console.log('Customer and related data deleted successfully.');
+      return { success: true, message: 'Customer account deleted.' };
+    } catch (error) {
+      console.error('Error deleting customer:', error.message);
+      throw error;
+    } finally {
+      await client.end();
+    }
+  }
  
   
 }
 class Admin {
-    // View Analytics function
-    static async viewAnalytics(transporterId) {
-      const client = await getClient();  // Get the database client
+    static async updateAdminDetails(adminId, updates) {
+      const client = await getClient();
       try {
-        // SQL query to fetch analytics for a specific transporter or all transporters
-        const query = `
-          SELECT profit, average_rating, total_revenue, transporters_transporter_id 
-          FROM analytics
-          WHERE transporters_transporter_id = $1
-        `;
-        
-        // Execute query with the given transporterId (pass null if you want to fetch all transporters)
-        const result = await client.query(query, [transporterId]);
+        const fieldMap = {
+          'Username': 'username',
+          'Password': 'password_hash',
+        };
   
-        if (result.rows.length === 0) {
-          console.log('No analytics data found for the given transporter.');
-          return null;  // Return null if no data found
+        const updateKeys = Object.keys(updates).filter(key => fieldMap[key]);
+  
+        if (updateKeys.length === 0) {
+          throw new Error('No valid fields to update.');
         }
   
-        // Return the analytics data
-        return result.rows;
-      } catch (err) {
-        console.error('Error retrieving analytics data:', err);
-        throw new Error('Error retrieving analytics data');
+        for (const key of updateKeys) {
+          const dbColumn = fieldMap[key];
+  
+          if (dbColumn === 'password_hash') {
+            // Encrypt the password
+            const saltRounds = 10;
+            const hashedPassword = await bcrypt.hash(updates[key], saltRounds);
+  
+            // Update the password_hash field
+            const updatePasswordQuery = `
+              UPDATE admin 
+              SET password_hash = $1
+              WHERE admin_id = $2
+            `;
+            await client.query(updatePasswordQuery, [hashedPassword, adminId]);
+          } else {
+            const updateFieldQuery = `
+              UPDATE admin 
+              SET ${dbColumn} = $1
+              WHERE admin_id = $2
+            `;
+            await client.query(updateFieldQuery, [updates[key], adminId]);
+          }
+        }
+  
+        // Retrieve and return the updated admin details
+        const selectQuery = `
+          SELECT admin_id, username
+          FROM admin 
+          WHERE admin_id = $1
+        `;
+        const result = await client.query(selectQuery, [adminId]);
+  
+        if (result.rows.length === 0) {
+          throw new Error('Admin not found or no changes made.');
+        }
+  
+        console.log('Admin details updated successfully:', result.rows[0]);
+        return result.rows[0];
+      } catch (error) {
+        console.error('Error updating admin details:', error.message);
+        throw error;
       } finally {
-        await client.end();  // Ensure the client is closed after the query
+        await client.end();
       }
     }
+    static async deleteAdmin(adminUsername) {
+      const client = await getClient();
+      try {
+        const deleteAdminQuery = `
+          DELETE FROM admin 
+          WHERE username = $1
+        `;
+        const result = await client.query(deleteAdminQuery, [adminUsername]);
+  
+        if (result.rowCount === 0) {
+          console.log('Admin not found.');
+          return { success: false, message: 'Admin not found.' };
+        }
+  
+        console.log('Admin account deleted successfully.');
+        return { success: true, message: 'Admin account deleted.' };
+      } catch (error) {
+        console.error('Error deleting admin:', error.message);
+        throw error;
+      } finally {
+        await client.end();
+      }
+    }
+  
+  static async viewAnalytics(transporterId) {
+    const client = await getClient();  // Get the database client
+    try {
+      // SQL query to fetch analytics for a specific transporter or all transporters
+      const query = `
+        SELECT profit, average_rating, total_revenue, transporters_transporter_id 
+        FROM analytics
+        WHERE transporters_transporter_id = $1
+      `;
+      
+      // Execute query with the given transporterId (pass null if you want to fetch all transporters)
+      const result = await client.query(query, [transporterId]);
+
+      if (result.rows.length === 0) {
+        console.log('No analytics data found for the given transporter.');
+        return null;  // Return null if no data found
+      }
+
+      // Return the analytics data
+      return result.rows;
+    } catch (err) {
+      console.error('Error retrieving analytics data:', err);
+      throw new Error('Error retrieving analytics data');
+    } finally {
+      await client.end();  // Ensure the client is closed after the query
+    }
   }
+}
   
 
   module.exports = { Customer, Admin };

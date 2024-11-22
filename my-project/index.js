@@ -1,5 +1,25 @@
 const { Customer, Admin } = require('./program');
 async function testCustomerClass() {
+  console.log('Testing Update Customer Details:');
+  
+  try {
+    // Sample data for testing
+    const custId = 1;  // Replace with a valid customer ID from your database
+
+    // Data to update (could be first_name, last_name, phone_number, email, etc.)
+    const updates = {
+      'First Name': 'Vaniya',
+      'Last Name': 'Rehan',
+      'Email': 'vaniya.rehane@example.com',
+      'Phone Number': '123-456-7890'
+    };
+
+    // Call the updateCustomerDetails function
+    const updatedCustomer = await Customer.updateCustomerDetails(custId, updates);
+    console.log('Updated Customer Details:', updatedCustomer);
+  } catch (error) {
+    console.error('Error during update customer details test:', error.message);
+  }
   console.log('Testing Book Ride Function:');
     try {
         // Sample data for testing
@@ -59,11 +79,68 @@ async function testCustomerClass() {
 //   }
   
   // testAdminAnalytics();
+//   async function testUpdateAdminDetails() {
+//     console.log('Testing Update Admin Details:');
+    
+//     try {
+//       // Sample data for testing
+//       const adminId = 1;  // Replace with a valid admin ID from your database
   
- testCustomerClass()
-  .then(() => {
-    console.log('Testing complete.');
-  })
-  .catch(err => {
-    console.error('An error occurred during testing:', err);
-  });
+//       // Data to update (we'll only update the Username here, or you can update Password as well)
+//       const updates = {
+//         'Username': 'daniazehra123', // New username for testing
+//         'Password': 'dbproject123'  // Uncomment this line if you want to test password update
+//       };
+  
+//       // Call the updateAdminDetails function
+//       const updatedAdmin = await Admin.updateAdminDetails(adminId, updates);
+//       console.log('Updated Admin Details:', updatedAdmin);
+//     } catch (error) {
+//       console.error('Error during update admin details test:', error.message);
+//     }
+//   }
+  
+//   testUpdateAdminDetails()
+//     .then(() => {
+//       console.log('Update admin details testing complete.');
+//     })
+//     .catch((err) => {
+//       console.error('An error occurred during update admin details test:', err);
+//     });
+//  testCustomerClass()
+//   .then(() => {
+//     console.log('Testing complete.');
+//   })
+//   .catch(err => {
+//     console.error('An error occurred during testing:', err);
+//   });
+  async function testDeleteCustomer() {
+    console.log('Testing Delete Customer:');
+    
+    try {
+      const custId = 1;  
+      const result = await Customer.deleteCustomer(custId);
+      console.log(result.message);  
+    } catch (error) {
+      console.error('Error during delete customer test:', error.message);
+    }
+  }
+  
+  testDeleteCustomer()
+    .then(() => {
+      console.log('Delete customer testing complete.');
+    })
+    .catch((err) => {
+      console.error('An error occurred during delete customer test:', err);
+    });
+    async function testDeleteAdmin() {
+      try {
+        const adminUsername = 'admin2';  
+        const response = await Admin.deleteAdmin(adminUsername);
+        console.log(response.message);  
+      } catch (error) {
+        console.error('Error during delete admin test:', error.message);
+      }
+    }
+    
+    testDeleteAdmin();
