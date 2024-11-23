@@ -1,46 +1,46 @@
 const { Customer, Admin} = require('./program');
 async function testCustomerClass() {
-  console.log('Testing Update Customer Details:');
+//   console.log('Testing Update Customer Details:');
   
-  try {
-    // Sample data for testing
-    const custId = 1;  // Replace with a valid customer ID from your database
+//   try {
+//     // Sample data for testing
+//     const custId = 1;  // Replace with a valid customer ID from your database
 
-    // Data to update (could be first_name, last_name, phone_number, email, etc.)
-    const updates = {
-      'First Name': 'Vaniya',
-      'Last Name': 'Rehan',
-      'Email': 'vaniya.rehane@example.com',
-      'Phone Number': '123-456-7890'
-    };
+//     // Data to update (could be first_name, last_name, phone_number, email, etc.)
+//     const updates = {
+//       'First Name': 'Vaniya',
+//       'Last Name': 'Rehan',
+//       'Email': 'vaniya.rehane@example.com',
+//       'Phone Number': '123-456-7890'
+//     };
 
-    // Call the updateCustomerDetails function
-    const updatedCustomer = await Customer.updateCustomerDetails(custId, updates);
-    console.log('Updated Customer Details:', updatedCustomer);
-  } catch (error) {
-    console.error('Error during update customer details test:', error.message);
-  }
-  console.log('Testing Book Ride Function:');
-    try {
-        // Sample data for testing
-         // Date format (YYYY-MM-DD)
+//     // Call the updateCustomerDetails function
+//     const updatedCustomer = await Customer.updateCustomerDetails(custId, updates);
+//     console.log('Updated Customer Details:', updatedCustomer);
+//   } catch (error) {
+//     console.error('Error during update customer details test:', error.message);
+//   }
+//   console.log('Testing Book Ride Function:');
+//     try {
+//         // Sample data for testing
+//          // Date format (YYYY-MM-DD)
 
-        // Call the bookRide function
-        const booking = await Customer.bookRide(customerId, routeId, rideDate);
-        console.log('Booking Details:', booking);  // Log the booking details (e.g., booking ID)
-    } catch (err) {
-        console.error('Error during booking test:', err.message);
-    }
-    console.log('Testing Fare Estimation:');
-    try {
-        const origin = 'Nazimabad, Karachi'; // Replace with test data
-        const destination = 'Clifton, Karachi'; // Replace with test data
-        const estimatedFare = await Customer.estimateFare(origin, destination);
-        console.log(`Estimated Fare from ${origin} to ${destination}: ${estimatedFare}`);
-    } catch (error) {
-        console.error('Error during fare estimation test:', error);
+//         // Call the bookRide function
+//         const booking = await Customer.bookRide(customerId, routeId, rideDate);
+//         console.log('Booking Details:', booking);  // Log the booking details (e.g., booking ID)
+//     } catch (err) {
+//         console.error('Error during booking test:', err.message);
+//     }
+//     console.log('Testing Fare Estimation:');
+//     try {
+//         const origin = 'Nazimabad, Karachi'; // Replace with test data
+//         const destination = 'Clifton, Karachi'; // Replace with test data
+//         const estimatedFare = await Customer.estimateFare(origin, destination);
+//         console.log(`Estimated Fare from ${origin} to ${destination}: ${estimatedFare}`);
+//     } catch (error) {
+//         console.error('Error during fare estimation test:', error);
     
-    }
+//     }
 
  // Test View Routes
   console.log('Testing View Routes:');
@@ -107,13 +107,13 @@ async function testCustomerClass() {
 //     .catch((err) => {
 //       console.error('An error occurred during update admin details test:', err);
 //     });
-//  testCustomerClass()
-//   .then(() => {
-//     console.log('Testing complete.');
-//   })
-//   .catch(err => {
-//     console.error('An error occurred during testing:', err);
-//   });
+ testCustomerClass()
+  .then(() => {
+    console.log('Testing complete.');
+  })
+  .catch(err => {
+    console.error('An error occurred during testing:', err);
+  });
   // async function testDeleteCustomer() {
   //   console.log('Testing Delete Customer:');
     

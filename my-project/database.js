@@ -1,39 +1,55 @@
-const { Client } = require('pg');
+const mysql = require('mysql2');
 
-// Database configuration object
+// Database configuration object for MySQL
 const dbConfig = {
-  user: 'postgres',      // Your PostgreSQL username
-  host: 'localhost',         // PostgreSQL server address
-  database: 'test3',  // Your PostgreSQL database name
-  password: 'admin',  // Your PostgreSQL password
-  port: 5432,                // PostgreSQL port (default is 5432)
+  host: 'localhost',      // MySQL server address
+  user: 'root',           // Your MySQL username
+  password: 'blegh;;1',      // Your MySQL password
+  database: 'test3',      // Your MySQL database name
+  port: 3306,             // MySQL port (default is 3306)
 };
 
 // Function to connect to the database and query
 async function connectToDatabase() {
-  const client = new Client(dbConfig);
+  const connection = mysql.createConnection(dbConfig);
 
   try {
-    // Connect to PostgreSQL
-    await client.connect();
-    console.log("Successfully connected to PostgreSQL!");
+    // Connect to MySQL
+    connection.connect((err) => {
+      if (err) {
+        console.error("Error connecting to MySQL:", err.stack);
+        return;
+      }
+      console.log("Successfully connected to MySQL!");
+    });
 
-    // Example query: fetch all rows from a table called 'users'
-    const result = await client.query('SELECT * FROM admin');
-    console.log("Query result:", result.rows);
+    // Example query: fetch all rows from a table called 'admin'
+    connection.query('SELECT * FROM admin', (err, results, fields) => {
+      if (err) {
+        console.error("Error executing query:", err);
+        return;
+      }
+      console.log("Query result:", results);
+    });
 
     // Close the connection
-    await client.end();
+    connection.end();
   } catch (err) {
     console.error("Error connecting to the database:", err);
   }
 }
+
 async function getClient() {
-  const client = new Client(dbConfig);
+  const connection = mysql.createConnection(dbConfig);
   try {
-    await client.connect();
-    console.log('Successfully connected to PostgreSQL!');
-    return client;
+    connection.connect((err) => {
+      if (err) {
+        console.error("Error connecting to MySQL:", err.stack);
+        throw err;
+      }
+      console.log("Successfully connected to MySQL!");
+    });
+    return connection;
   } catch (err) {
     console.error('Error connecting to the database:', err);
     throw err; // Rethrow error for the calling function to handle
