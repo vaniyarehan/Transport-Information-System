@@ -190,7 +190,7 @@ static async bookRide(custId, routeId, rideDate) {
           // Update the password and updated_at explicitly
           const updatePasswordQuery = `
             UPDATE customer
-            SET hash_password= $1, updated_at = NOW() 
+            SET password= $1, updated_at = NOW() 
             WHERE cust_id = $2
           `;
           await client.query(updatePasswordQuery, [hashedPassword, custId]);
@@ -270,7 +270,7 @@ class Admin {
       try {
         const fieldMap = {
           'Username': 'username',
-          'Password': 'password_hash',
+          'Password': 'password',
         };
   
         const updateKeys = Object.keys(updates).filter(key => fieldMap[key]);
@@ -282,15 +282,13 @@ class Admin {
         for (const key of updateKeys) {
           const dbColumn = fieldMap[key];
   
-          if (dbColumn === 'password_hash') {
-            // Encrypt the password
+          if (dbColumn === 'password') { // Encrypt the password
             const saltRounds = 10;
             const hashedPassword = await bcrypt.hash(updates[key], saltRounds);
   
-            // Update the password_hash field
             const updatePasswordQuery = `
               UPDATE admin 
-              SET password_hash = $1
+              SET password = $1
               WHERE admin_id = $2
             `;
             await client.query(updatePasswordQuery, [hashedPassword, adminId]);
@@ -377,6 +375,6 @@ class Admin {
     }
   }
 }
-  
+
 
   module.exports = { Customer, Admin };

@@ -1,4 +1,4 @@
-const { Customer, Admin } = require('./program');
+const { Customer, Admin} = require('./program');
 async function testCustomerClass() {
   console.log('Testing Update Customer Details:');
   
@@ -23,9 +23,7 @@ async function testCustomerClass() {
   console.log('Testing Book Ride Function:');
     try {
         // Sample data for testing
-        const customerId = 1;    // Replace with a valid customer ID from your database
-        const routeId = 'RT001';  // Replace with a valid route ID
-        const rideDate = '2024-11-21';  // Date format (YYYY-MM-DD)
+         // Date format (YYYY-MM-DD)
 
         // Call the bookRide function
         const booking = await Customer.bookRide(customerId, routeId, rideDate);
@@ -99,7 +97,9 @@ async function testCustomerClass() {
 //       console.error('Error during update admin details test:', error.message);
 //     }
 //   }
-  
+  // const customerId = 1;    // Replace with a valid customer ID from your database
+  //       const routeId = 'RT001';  // Replace with a valid route ID
+  //       const rideDate = '2024-11-21'; 
 //   testUpdateAdminDetails()
 //     .then(() => {
 //       console.log('Update admin details testing complete.');
@@ -114,33 +114,34 @@ async function testCustomerClass() {
 //   .catch(err => {
 //     console.error('An error occurred during testing:', err);
 //   });
-  async function testDeleteCustomer() {
-    console.log('Testing Delete Customer:');
+  // async function testDeleteCustomer() {
+  //   console.log('Testing Delete Customer:');
     
-    try {
-      const custId = 1;  
-      const result = await Customer.deleteCustomer(custId);
-      console.log(result.message);  
-    } catch (error) {
-      console.error('Error during delete customer test:', error.message);
-    }
-  }
+  //   try {
+  //     const custId = 1;  
+  //     const result = await Customer.deleteCustomer(custId);
+  //     console.log(result.message);  
+  //   } catch (error) {
+  //     console.error('Error during delete customer test:', error.message);
+  //   }
+  // }
   
-  testDeleteCustomer()
-    .then(() => {
-      console.log('Delete customer testing complete.');
-    })
-    .catch((err) => {
-      console.error('An error occurred during delete customer test:', err);
-    });
-    async function testDeleteAdmin() {
-      try {
-        const adminUsername = 'admin2';  
-        const response = await Admin.deleteAdmin(adminUsername);
-        console.log(response.message);  
-      } catch (error) {
-        console.error('Error during delete admin test:', error.message);
-      }
-    }
+  // testDeleteCustomer()
+  //   .then(() => {
+  //     console.log('Delete customer testing complete.');
+  //   })
+  //   .catch((err) => {
+  //     console.error('An error occurred during delete customer test:', err);
+  //   });
+  //   async function testDeleteAdmin() {
+  //     try {
+  //       const adminUsername = 'admin2';  
+  //       const response = await Admin.deleteAdmin(adminUsername);
+  //       console.log(response.message);  
+  //     } catch (error) {
+  //       console.error('Error during delete admin test:', error.message);
+  //     }
+  //   }
     
-    testDeleteAdmin();
+    // testDeleteAdmin();
+    
